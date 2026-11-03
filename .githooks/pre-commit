@@ -21,6 +21,7 @@ usage() {
 
 main() {
     local arg script
+    local -a zsh_files checked_files
     for arg in "$@"; do
         case "$arg" in
             --dry-run|--apply) ;;
@@ -31,19 +32,24 @@ main() {
 
     require_commands git bash zsh shellcheck
     cd "$REPO_DIR"
+    zsh_files=(zsh/.zshrc zsh/.config/zsh/*.zsh config/zshrc-local.example.zsh config/zshrc-local-pre.example.zsh)
+    checked_files=(scripts/*.sh .githooks/pre-commit .shellcheckrc config/paquets.tsv "${zsh_files[@]}")
     # Refuser les scripts partiellement indexés : le contrôle porte sur les
     # fichiers du dossier de travail, qui doivent correspondre à l'index.
-    if ! git diff --quiet -- scripts/*.sh .githooks/pre-commit .shellcheckrc zsh/.zshrc; then
+    if ! git diff --quiet -- "${checked_files[@]}"; then
         log_error "Des fichiers analysés diffèrent de l'index. Indexez leur version complète avant le commit."
         return 1
     fi
     # Ne pas valider des dépendances encore absentes de l'index.
-    git ls-files --error-unmatch -- scripts/*.sh .githooks/pre-commit .shellcheckrc zsh/.zshrc >/dev/null
+    git ls-files --error-unmatch -- "${checked_files[@]}" >/dev/null
     git diff --cached --check
     for script in scripts/*.sh .githooks/pre-commit; do
         bash -n "$script"
     done
-    zsh -n zsh/.zshrc
+    for script in "${zsh_files[@]}"; do
+        zsh -n "$script"
+    done
+    load_package_catalog
     shellcheck scripts/*.sh .githooks/pre-commit
     log_ok "Syntaxe, ShellCheck et espaces vérifiés ; aucun fichier modifié."
 }

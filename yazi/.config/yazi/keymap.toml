@@ -1,0 +1,14 @@
+#:schema https://yazi-rs.github.io/schemas/keymap.json
+# Raccourcis supplémentaires — destination : ~/.config/yazi/keymap.toml.
+# Référence documentaire : Yazi 26.9.1 ; compatibilité réelle non testée.
+# append_keymap garde la priorité aux commandes natives de Yazi.
+# Les paramètres %s sont substitués et protégés par Yazi, pas interpolés ici.
+
+[mgr]
+append_keymap = [
+    { on = "<F2>", run = 'shell --block -- ${VISUAL:-${EDITOR:-vi}} %s', desc = "Ouvrir dans l'éditeur personnel" },
+    { on = "<F3>", run = "shell -- /usr/bin/open %s", desc = "Ouvrir avec l'application macOS" },
+    { on = "<F4>", run = "copy path --hovered", desc = "Copier le chemin de l'élément sous le curseur" },
+    { on = [ "g", "D" ], run = "cd ~/Documents", desc = "Aller dans Documents" },
+    { on = [ "g", "B" ], run = "cd ~/Desktop", desc = "Aller sur le Bureau" },
+]

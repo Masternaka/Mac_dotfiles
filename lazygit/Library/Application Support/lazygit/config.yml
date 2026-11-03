@@ -10,16 +10,16 @@ gui:
   showNumstatInFilesView: true
   showRandomTip: false
   shortTimeFormat: "15:04"
-  # Catppuccin Macchiato en sombre, Latte en clair.
+  # Catppuccin Mocha en sombre, Latte en clair.
   colorScheme: auto
   darkTheme:
-    activeBorderColor: ["#c6a0f6", bold]
-    inactiveBorderColor: ["#6e738d"]
-    searchingActiveBorderColor: ["#eed49f", bold]
-    optionsTextColor: ["#8aadf4"]
-    selectedLineBgColor: ["#363a4f"]
-    defaultFgColor: ["#cad3f5"]
-    unstagedChangesColor: ["#ed8796"]
+    activeBorderColor: ["#cba6f7", bold]
+    inactiveBorderColor: ["#6c7086"]
+    searchingActiveBorderColor: ["#f9e2af", bold]
+    optionsTextColor: ["#89b4fa"]
+    selectedLineBgColor: ["#313244"]
+    defaultFgColor: ["#cdd6f4"]
+    unstagedChangesColor: ["#f38ba8"]
   lightTheme:
     activeBorderColor: ["#8839ef", bold]
     inactiveBorderColor: ["#9ca0b0"]

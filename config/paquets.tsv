@@ -1,0 +1,8 @@
+# nom	libellé	requis	facultatifs	groupe	format	source principale	requis dans le menu
+bat	Bat	bat	-	-	bat	.config/bat/config	oui
+ghostty	Ghostty	ghostty	-	terminal	ghostty	.config/ghostty/config	non
+herdr	Herdr	herdr	-	terminal	toml	.config/herdr/config.toml	non
+lazygit	Lazygit et Delta	lazygit delta	gh	-	yaml	Library/Application Support/lazygit/config.yml	oui
+starship	Starship	starship	-	terminal	toml	.config	non
+yazi	Yazi	yazi	ffmpeg 7zz jq pdftoppm fd rg fzf zoxide resvg magick	yazi	toml	.config/yazi	non
+zsh	Zsh	zsh	nvim starship zoxide fzf eza bat	terminal	zsh	.zshrc	non

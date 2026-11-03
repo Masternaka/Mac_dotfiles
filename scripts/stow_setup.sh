@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Objectif : proposer les paquets du dépôt à lier avec GNU Stow.
 # Prérequis : GNU Stow déjà installé ; macOS avec Bash 3.2 ou ultérieur.
-# Options : --dry-run (défaut), --apply, --help.
+# Options : --dry-run (défaut), --apply, --packages LISTE, --help.
 # Effets : sauvegarde des fichiers existants et création des liens choisis.
 # Retour arrière : voir docs/retour-arriere.md.
 
@@ -21,6 +21,7 @@ fi
 DRY_RUN=1
 # shellcheck source=lib.sh
 source "$SCRIPT_DIR/lib.sh"
+SELECTED_PACKAGES=()
 
 usage() {
     cat <<'EOF'
@@ -31,38 +32,42 @@ Vérifie GNU Stow puis propose un menu pour choisir les configurations à lier.
 Options :
   --dry-run   Affiche les actions sans rien modifier (défaut)
   --apply     Applique réellement les changements
+  --packages LISTE  Sélection directe, noms séparés par des virgules
   -h, --help  Affiche cette aide
 EOF
 }
 
 parse_args() {
-    for arg in "$@"; do
-        case "$arg" in
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
             --dry-run) DRY_RUN=1 ;;
             --apply)   DRY_RUN=0 ;;
+            --packages)
+                if [ "$#" -lt 2 ]; then
+                    log_error 'Valeur manquante pour --packages.'
+                    exit 2
+                fi
+                add_selected_packages "$2" || exit 2
+                shift
+                ;;
+            --packages=*) add_selected_packages "${1#*=}" || exit 2 ;;
             -h|--help)
                 usage
                 exit 0
                 ;;
             *)
-                log_error "Option inconnue : $arg"
+                log_error "Option inconnue : $1"
                 usage
                 exit 2
                 ;;
         esac
+        shift
     done
 }
 
 detect_packages() {
-    local dir name
-
-    PACKAGES=()
-    for dir in "$REPO_DIR"/*/; do
-        name="$(basename "$dir")"
-        if [ -d "$dir/.config" ] || [ -d "$dir/Library" ] || [ -f "$dir/.zshrc" ]; then
-            PACKAGES+=("$name")
-        fi
-    done
+    load_package_catalog || return 2
+    PACKAGES=("${CATALOG_NAMES[@]}")
 
     if [ ${#PACKAGES[@]} -eq 0 ]; then
         log_error "Aucun paquet Stow trouvé dans $REPO_DIR."
@@ -135,22 +140,24 @@ select_packages() {
         return 0
     fi
 
+    apply_selection "${selected[@]}"
+}
+
+apply_selection() {
+    local name
     # Vérifier tous les prérequis avant la première sauvegarde.
-    for name in "${selected[@]}"; do
-        if [ "$name" = "lazygit" ]; then
-            require_commands lazygit delta
-        fi
+    for name in "$@"; do
+        check_package_dependencies "$name" menu || return 1
     done
 
-    deploy_packages "${selected[@]}"
+    deploy_packages "$@"
 
     if [ "$DRY_RUN" -eq 1 ]; then
         log_warn "Mode simulation : les liens n'ont pas été créés."
         log_info "Relancez avec --apply pour appliquer les changements."
     else
-        log_ok "Paquets liés : ${selected[*]}"
-        log_info "Vous pouvez maintenant lancer terminal_setup.sh et yazi_setup.sh,"
-        log_info "ou gérer les liens manuellement avec stow."
+        log_ok "Paquets liés : $*"
+        log_info "Consultez le guide du paquet pour son utilisation ; aucun autre parcours n'est obligatoire."
     fi
 }
 
@@ -159,7 +166,11 @@ main() {
     check_repo
     require_commands stow
     detect_packages
-    select_packages
+    if [ "${#SELECTED_PACKAGES[@]}" -gt 0 ]; then
+        apply_selection "${SELECTED_PACKAGES[@]}"
+    else
+        select_packages
+    fi
 }
 
 main "$@"

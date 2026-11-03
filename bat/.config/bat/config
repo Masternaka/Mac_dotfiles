@@ -1,0 +1,15 @@
+# Configuration Bat — destination prévue : ~/.config/bat/config, via GNU Stow.
+# Palette du terminal : suit les couleurs Catppuccin de Ghostty sans thème externe.
+--theme="ansi"
+
+# Nom du fichier, numéros de ligne et marques Git, sans grille.
+--style="header,numbers,changes"
+
+# Pagination lorsque nécessaire ; couleurs et décorations selon la destination.
+--paging=auto
+--color=auto
+--decorations=auto
+
+# Variante facultative : nécessite le thème externe préparé et mis en cache.
+# Voir bat/README.md avant de remplacer l'option --theme ci-dessus.
+# --theme="Catppuccin Macchiato"

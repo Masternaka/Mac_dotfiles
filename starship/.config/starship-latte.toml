@@ -1,0 +1,96 @@
+# Catppuccin Latte pour Starship
+# Source : https://github.com/catppuccin/starship
+# Destination : ~/.config/starship-latte.toml (via GNU Stow)
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+palette = "catppuccin_latte"
+
+# Deux lignes utiles, sans afficher tous les modules disponibles par défaut.
+# Les modules de langages gardent leur détection contextuelle native.
+format = "$username$hostname$directory$git_branch$git_state$git_status$nodejs$python$swift$cmd_duration$line_break$status$character"
+add_newline = true
+
+[character]
+success_symbol = "[[󰄛](green) ❯](peach)"
+error_symbol = "[[󰄛](red) ❯](red)"
+vimcmd_symbol = "[󰄛 ❮](subtext1)"
+
+[git_branch]
+style = "bold mauve"
+format = '[$symbol$branch]($style) '
+
+[git_state]
+style = "bold yellow"
+
+# Compteurs compacts : modifications, index, fichiers inconnus et suivi distant.
+[git_status]
+style = "bold yellow"
+format = '([$all_status$ahead_behind]($style) )'
+conflicted = '!${count}'
+stashed = '*${count}'
+deleted = '-${count}'
+renamed = '»${count}'
+modified = '~${count}'
+staged = '+${count}'
+untracked = '?${count}'
+ahead = '↑${count}'
+behind = '↓${count}'
+diverged = '↑${ahead_count}↓${behind_count}'
+
+[cmd_duration]
+min_time = 2000
+format = '[durée $duration]($style) '
+style = "yellow"
+show_notifications = false
+
+# Le code n'apparaît qu'en cas d'échec, sur la ligne de saisie.
+[status]
+disabled = false
+success_symbol = ''
+format = '[code $status]($style) '
+style = "bold red"
+
+[nodejs]
+format = '[Node $version]($style) '
+style = "green"
+
+[python]
+format = '[Python $version( \($virtualenv\))]($style) '
+style = "yellow"
+
+[swift]
+format = '[Swift $version]($style) '
+style = "peach"
+
+[directory]
+truncation_length = 4
+style = "bold lavender"
+
+[palettes.catppuccin_latte]
+rosewater = "#dc8a78"
+flamingo = "#dd7878"
+pink = "#ea76cb"
+mauve = "#8839ef"
+red = "#d20f39"
+maroon = "#e64553"
+peach = "#fe640b"
+yellow = "#df8e1d"
+green = "#40a02b"
+teal = "#179299"
+sky = "#04a5e5"
+sapphire = "#209fb5"
+blue = "#1e66f5"
+lavender = "#7287fd"
+text = "#4c4f69"
+subtext1 = "#5c5f77"
+subtext0 = "#6c6f85"
+overlay2 = "#7c7f93"
+overlay1 = "#8c8fa1"
+overlay0 = "#9ca0b0"
+surface2 = "#acb0be"
+surface1 = "#bcc0cc"
+surface0 = "#ccd0da"
+base = "#eff1f5"
+mantle = "#e6e9ef"
+crust = "#dce0e8"

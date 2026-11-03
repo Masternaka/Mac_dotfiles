@@ -7,7 +7,7 @@ ce dépôt sont précisés ; les autres gardent leur valeur native.
 
 ## Prérequis et destination
 
-Préparer manuellement `git`, `stow`, `lazygit` et `delta` dans le `PATH`.
+Préparer manuellement `git`, `stow`, `cksum`, `lazygit` et `delta` dans le `PATH`.
 La police Nerd Font du terminal permet d'afficher les icônes.
 
 Le paquet contient un seul fichier de configuration, destiné au chemin natif
@@ -17,17 +17,26 @@ Si `XDG_CONFIG_HOME` ou une option de lancement impose un
 autre emplacement, adapter ce choix avant application : ce paquet vise le
 chemin macOS par défaut.
 
-Depuis la racine du dépôt, lancer soi-même une simulation et choisir `lazygit` :
+## Appliquer la configuration avec les scripts
+
+Depuis la racine du dépôt, lancer soi-même une simulation ciblée :
 
 ```bash
-bash scripts/stow_setup.sh --dry-run
+bash scripts/stow_setup.sh --dry-run --packages lazygit
 ```
 
-Après relecture, refaire la sélection avec `--apply`. Le script vérifie
+Après validation dans un macOS jetable et relecture, reprendre la même commande
+avec `--apply`, manuellement sur la machine cible. Le script vérifie
 Lazygit et Delta avant toute sauvegarde. Il ne les installe pas et ne lance
 pas Lazygit. Un fichier de configuration existant est sauvegardé.
 
-Pour lier manuellement le paquet, sans sauvegarde automatique :
+Le script produit aussi un journal dans `.deployments/`. Consulter
+[la première utilisation](../docs/premiere-utilisation.md) pour le parcours complet.
+
+### Autre voie : Stow manuel
+
+Pour lier manuellement le paquet, sans sauvegarde automatique, journal ni
+protections des scripts :
 
 ```bash
 stow --target="$HOME" --restow --no-folding lazygit
@@ -39,7 +48,7 @@ adaptation ; le fichier fourni utilise `git.diffRenderers` de la version ciblée
 
 ## Affichage et utilisation
 
-- Catppuccin Macchiato en sombre, Latte en clair, selon le terminal.
+- Catppuccin Mocha en sombre, Latte en clair, selon le terminal.
 - Panneaux latéraux réduits pour laisser plus de place au diff.
 - Delta affiche la coloration syntaxique et les numéros de ligne ; ses thèmes
   de code sont ceux fournis par Delta, sans fichier de thème à télécharger.
@@ -138,15 +147,26 @@ Pour retirer cette intégration seule, supprimer les trois entrées `GitHub` de
 
 ## Retour arrière
 
-Quitter Lazygit, puis retirer le lien depuis ce clone :
+Sur la machine cible, quitter Lazygit puis préparer l'annulation avec le chemin
+exact du journal affiché pendant le déploiement :
+
+```bash
+bash scripts/annuler-deploiement.sh --dry-run --journal .deployments/IDENTIFIANT.tsv
+```
+
+Après relecture, suivre [le guide de retour arrière](../docs/retour-arriere.md)
+pour l'application réelle. Ce parcours conserve les liens préexistants et
+remet les sauvegardes correspondantes en place.
+
+Pour un déploiement manuel sans journal, retirer soi-même le lien puis restaurer
+la sauvegarde si elle existe, selon le même guide :
 
 ```bash
 stow --target="$HOME" --delete lazygit
 ```
 
-Restaurer ensuite la sauvegarde de `config.yml`, si elle existe, en suivant
-[le guide de retour arrière](../docs/retour-arriere.md). Retirer le lien ne
-désinstalle ni Lazygit ni Delta.
+Retirer le lien ne désinstalle ni Lazygit ni Delta et ne restaure pas à lui seul
+l'ancien fichier `config.yml`.
 
 ## Références
 

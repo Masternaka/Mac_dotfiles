@@ -9,6 +9,15 @@ destinés à être lancés manuellement depuis la racine du dépôt.
 bash scripts/verifier-depot.sh --dry-run
 ```
 
+Pour cibler un paquet, ajouter `--package ghostty` ; pour plusieurs,
+`--packages ghostty,zsh`. Les analyses des scripts Bash communs restent actives,
+les configurations et dépendances sont limitées à la sélection. Sans ces
+options, le bilan complet est conservé.
+
+L'option `--sans-shellcheck` permet de différer explicitement cette analyse,
+sans installer d'outil. Elle produit un bilan incomplet, jamais un succès
+complet, et ne désactive pas les autres contrôles.
+
 Le script ne modifie rien et ne lance pas les applications. Il continue après
 un contrôle indisponible ou un échec, puis renvoie `1` pour un échec ou `2` pour
 un bilan incomplet ; `0` signifie seulement que les contrôles statiques prévus
@@ -22,6 +31,11 @@ for script in scripts/*.sh; do
     bash -n "$script" || break
 done
 zsh -n zsh/.zshrc
+zsh -n config/zshrc-local.example.zsh
+zsh -n config/zshrc-local-pre.example.zsh
+for fragment in zsh/.config/zsh/*.zsh; do
+    zsh -n "$fragment" || break
+done
 git diff --check
 ```
 
@@ -61,7 +75,9 @@ Bash, Zsh et ShellCheck déjà présents. Si un outil manque, le commit est bloq
 avec un message explicite. Aucun outil n'est téléchargé ou installé.
 
 Pour garder le contrôle simple et fiable, les fichiers analysés doivent être
-entièrement indexés : scripts Bash, hook, `.shellcheckrc` et `.zshrc`. Le hook
+entièrement indexés : scripts Bash, hook, `.shellcheckrc`, catalogue
+`config/paquets.tsv`, chargeur `.zshrc`, fragments `zsh/.config/zsh/*.zsh` et
+les deux modèles Zsh locaux de `config/`. Le hook
 refuse de continuer si leur version de travail diffère de l'index, ou si un de
 ces fichiers n'y figure pas encore. Les autres fichiers peuvent être indexés
 partiellement. Il ne lance aucun script de liaison et ne reformate rien.
@@ -114,3 +130,9 @@ Références : [hooks Git](https://git-scm.com/docs/githooks) et
 Une analyse statique réussie ne prouve pas le comportement de Stow, le rendu de
 Lazygit/Delta ni la compatibilité de toutes les versions des applications.
 Les essais d'application se font manuellement dans un environnement jetable.
+
+Le diagnostic et le hook prévoient désormais la lecture du catalogue commun.
+Le diagnostic TOML parcourt les sources déclarées, notamment les deux variantes
+Starship et les deux fichiers Yazi. Les chemins d'environnement incompatibles
+sont signalés comme un échec de compatibilité de destination. Ces adaptations
+n'ont pas été exécutées ni analysées ; les vérifications restent différées.

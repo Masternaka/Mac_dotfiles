@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Objectif : vérifier les outils de Yazi et lier sa configuration.
 # Prérequis : outils décrits dans scripts/README.md, déjà présents.
-# Options : --dry-run (défaut), --apply, --help.
+# Options : --dry-run (défaut), --apply, --strict, --help.
 # Effets : sauvegarde de la configuration existante et création des liens Stow.
 # Retour arrière : voir docs/retour-arriere.md.
 
@@ -21,6 +21,7 @@ fi
 DRY_RUN=1
 # shellcheck source=lib.sh
 source "$SCRIPT_DIR/lib.sh"
+STRICT=0
 
 usage() {
     cat <<'EOF'
@@ -31,6 +32,7 @@ Vérifie Yazi, ses outils de prévisualisation et relie sa configuration avec GN
 Options :
   --dry-run   Affiche les actions sans rien modifier (défaut)
   --apply     Applique réellement les changements
+  --strict    Exige aussi tous les outils de prévisualisation et recherche
   -h, --help  Affiche cette aide
 EOF
 }
@@ -40,6 +42,7 @@ parse_args() {
         case "$arg" in
             --dry-run) DRY_RUN=1 ;;
             --apply)   DRY_RUN=0 ;;
+            --strict) STRICT=1 ;;
             -h|--help)
                 usage
                 exit 0
@@ -61,7 +64,10 @@ check_repo() {
 }
 
 check_dependencies() {
-    require_commands stow yazi ffmpeg 7zz jq pdftoppm fd rg fzf zoxide resvg magick
+    local mode=parcours
+    require_commands stow cksum || return 1
+    [ "$STRICT" -eq 0 ] || mode=strict
+    check_package_dependencies yazi "$mode"
 }
 
 link_config() {

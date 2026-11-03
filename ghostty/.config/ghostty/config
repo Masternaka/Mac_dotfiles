@@ -55,7 +55,7 @@ scrollbar = system
 # ── Onglets & splits ───────────────────────────────────────
 window-new-tab-position = end
 unfocused-split-opacity = 0.85
-split-divider-color = #c6a0f6
+split-divider-color = #cba6f7
 
 # ── Comportement ───────────────────────────────────────────
 confirm-close-surface = true
@@ -127,3 +127,7 @@ keybind = cmd+shift+s=write_scrollback_file:open
 keybind = cmd+shift+e=equalize_splits
 # Réinitialisation du terminal (en cas d'affichage bloqué)
 keybind = cmd+shift+r=reset
+
+# Préférences propres à la machine, facultatives et hors du paquet.
+# Chemin personnel indépendant de l'emplacement du clone.
+config-file = ?~/.config/ghostty-local.conf

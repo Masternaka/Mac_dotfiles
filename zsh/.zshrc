@@ -1,53 +1,29 @@
-# Configuration Zsh — destinée à ~/.zshrc (via GNU Stow)
-
-# --- Homebrew (Apple Silicon ou Intel) ---
-if [ -x /opt/homebrew/bin/brew ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [ -x /usr/local/bin/brew ]; then
-    eval "$(/usr/local/bin/brew shellenv)"
+# Configuration Zsh — destinée à ~/.zshrc, avec ses fragments via GNU Stow.
+# Préférences de démarrage propres à la machine, non gérées par Stow.
+if [[ -f "$HOME/.zshrc.local.pre" && -r "$HOME/.zshrc.local.pre" ]]; then
+    source "$HOME/.zshrc.local.pre"
 fi
 
-# --- Variables d'environnement ---
-export LANG=en_US.UTF-8
-if command -v nvim >/dev/null 2>&1; then
-    export EDITOR='nvim'
-fi
-
-# --- Complétion ---
-autoload -Uz compinit
-compinit
-
-# --- Plugins Zsh ---
-if [[ -r "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
-    source "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
-fi
-
-# --- Initialisations des outils ---
-if command -v starship >/dev/null 2>&1; then
-    eval "$(starship init zsh)"
-fi
-if command -v zoxide >/dev/null 2>&1; then
-    eval "$(zoxide init zsh --cmd cd)"
-fi
-# Les anciennes versions de fzf ne proposent pas --zsh.
-if command -v fzf >/dev/null 2>&1; then
-    if _fzf_initialisation="$(fzf --zsh 2>/dev/null)"; then
-        eval "$_fzf_initialisation"
+# Ordre explicite : conserver ensemble le chargeur et les fragments du paquet.
+_dotfiles_zsh_dir="$HOME/.config/zsh"
+for _dotfiles_zsh_module in \
+    10-environnement.zsh 20-historique.zsh 30-completion.zsh 40-outils.zsh \
+    50-recherche.zsh 60-edition.zsh 70-alias.zsh; do
+    if [[ ! -f "$_dotfiles_zsh_dir/$_dotfiles_zsh_module" || ! -r "$_dotfiles_zsh_dir/$_dotfiles_zsh_module" ]]; then
+        printf '[ERREUR] Fragment Zsh absent ou illisible : %s\n' "$_dotfiles_zsh_dir/$_dotfiles_zsh_module" >&2
+        unset _dotfiles_zsh_dir _dotfiles_zsh_module
+        return 1
     fi
-    unset _fzf_initialisation
+    source "$_dotfiles_zsh_dir/$_dotfiles_zsh_module"
+done
+unset _dotfiles_zsh_dir _dotfiles_zsh_module
+
+# Préférences après initialisation : alias, raccourcis et options à remplacer.
+if [[ -f "$HOME/.zshrc.local" && -r "$HOME/.zshrc.local" ]]; then
+    source "$HOME/.zshrc.local"
 fi
 
-# --- Alias CLI modernes ---
-if command -v eza >/dev/null 2>&1; then
-    alias ls='eza --icons --group-directories-first'
-    alias ll='eza -lh --icons --grid'
-fi
-if command -v bat >/dev/null 2>&1; then
-    alias cat='bat'
-fi
-alias g='git'
-
-# --- Coloration syntaxique (doit rester en dernier) ---
+# La coloration syntaxique reste en dernier.
 if [[ -r "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
     source "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi

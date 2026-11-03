@@ -19,6 +19,12 @@ Depuis la racine du clone :
 bash scripts/verifier-depot.sh --dry-run
 ```
 
+Pour la revue actuelle, ShellCheck est reporté : utiliser
+`bash scripts/verifier-depot.sh --dry-run --sans-shellcheck`.
+Le code `2` signale alors au moins ce contrôle différé ; conserver le détail
+du bilan et ne pas le présenter comme une validation complète.
+La [matrice de compatibilité](compatibilite.md) indique les versions à relever.
+
 Le script analyse la syntaxe Bash/Zsh, utilise ShellCheck s'il est présent,
 vérifie le YAML avec Ruby et le TOML avec Python et `tomllib` si disponibles,
 puis inventorie les commandes dans le `PATH` et la présence des plugins Zsh.
@@ -125,7 +131,7 @@ vers le chemin de sauvegarde annoncé et crée le lien. Comparer l'empreinte de
 **cette sauvegarde exacte** avec l'empreinte de l'ancien fichier notée avant
 l'application. La source du dépôt doit rester inchangée.
 
-Suivre ensuite [le retour arrière manuel](retour-arriere.md#annuler-une-application-réussie).
+Suivre ensuite [le retour arrière manuel](retour-arriere.md#annulation-manuelle-sans-journal).
 Attendu : l'ancien fichier ordinaire, avec son contenu original, retrouve sa
 place ; il n'est plus un lien. Ne pas retirer tous les paquets si seul
 `starship` a été appliqué.
@@ -214,6 +220,42 @@ deux parcours complets.
 
 ## 8. Consigner ce qui a été prouvé
 
+### Annulation guidée : scénarios supplémentaires dans la VM
+
+Pour chaque scénario indépendant, restaurer l'instantané puis effectuer un
+déploiement avec le code actuel. Conserver le chemin exact du journal affiché.
+Ne pas fabriquer un journal destiné à agir sur le Mac principal.
+
+| Scénario dans le macOS jetable | Résultat attendu |
+| --- | --- |
+| Déploiement en simulation | Aucun dossier `.deployments/` ni journal créé |
+| Destination absente avant déploiement | Journal complet ; annulation en simulation sans écriture, puis avec `--apply` : seul le nouveau lien est retiré |
+| Fichier ordinaire avant déploiement | Après annulation, contenu et permissions d'origine restaurés, journal conservé |
+| Lien déjà correct avant déploiement | Conservé pendant l'annulation |
+| Destination remplacée par un fichier personnel après déploiement | Annulation refusée avant tout retrait, fichier personnel intact |
+| Sauvegarde modifiée, retirée ou remplacée par un lien | Refus ; lien déployé et données restantes conservés |
+| Autre dossier parent symbolique ou source devenue symbolique | Refus sans traverser le lien |
+| Journal tronqué, chemin avec `..`, destination en double, autre compte ou clone | Refus avant toute action |
+| Champs TSV vides, tabulations en trop, données ajoutées après `end`, avec ou sans saut de ligne | Journal refusé avant toute action |
+| Second passage après une annulation complète, avant tout nouveau déploiement | Aucun retrait supplémentaire ni écrasement |
+| Interruption pendant l'annulation, si réellement exercée | Une nouvelle simulation décrit les actions restantes ; aucune destination modifiée n'est écrasée |
+
+Vérifier aussi les chemins avec espaces (paquet Lazygit), plusieurs paquets
+dont le dernier est en conflit et le refus d'un dossier `.deployments/`
+symbolique avant toute sauvegarde. Tester le parcours de sélection directe
+ainsi que le menu existant. Conserver les empreintes et les codes de sortie.
+
+Ces essais ne sont pas exécutés par le bilan statique.
+
+Pour le retour automatique après échec, contrôler séparément le refus de
+retirer un lien si sa sauvegarde a disparu, est devenue symbolique ou a changé
+de contenu. Si le moment nécessaire à ces essais ne peut pas être exercé sans
+introduire un outil de panne, les laisser **non exercés**. Ne pas ajouter de
+mode de test destructeur. Une relecture du code ne remplace pas cette preuve.
+Vérifier aussi que le contenu initial est recontrôlé avant son déplacement.
+
+### Tableau de suivi
+
 Remplir ce tableau dans ses notes, sans remplacer un statut par une supposition :
 
 | Scénario | Statut initial | Preuve à conserver |
@@ -222,6 +264,7 @@ Remplir ce tableau dans ses notes, sans remplacer un statut par une supposition 
 | Simulation sans écriture | Non exécuté | Comparaison de l'état avant/après |
 | Application et idempotence | Non exécuté | Liens, empreintes et sauvegardes |
 | Sauvegarde et retour arrière manuel | Non exécuté | Empreinte du fichier restauré |
+| Journal et annulation guidée | Non exécuté | Journal, liens conservés, empreintes et refus vérifiés |
 | Conflits et liens externes | Non exécuté | Refus et invariants préservés |
 | Interruption après déplacement | Non exercé | Moment observé, restauration vérifiée |
 | Échec pendant/après Stow | Non exercé | Erreur réelle et restauration vérifiée |
