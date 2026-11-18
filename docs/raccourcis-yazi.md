@@ -1,7 +1,7 @@
 # Fiche des touches Yazi
 
-Ajouts préparés pour macOS, d'après Yazi 26.9.1. Aucun essai clavier, lancement
-d'application, contrôle TOML ni test du presse-papiers n'a été effectué.
+Ajouts préparés pour macOS, d’après Yazi 26.9.1. Les raccourcis et le
+presse-papiers restent à vérifier dans le terminal cible.
 
 ## Ajouts du dépôt
 
@@ -10,21 +10,26 @@ d'application, contrôle TOML ni test du presse-papiers n'a été effectué.
 | F2 | Ouvrir les éléments sélectionnés, ou celui sous le curseur, dans `VISUAL`, puis `EDITOR`, puis `vi` en repli |
 | F3 | Demander à macOS de les ouvrir avec l'application associée |
 | F4 | Copier le chemin de l'élément sous le curseur, même si d'autres sont sélectionnés |
+| F5 | Afficher le fichier sous le curseur dans Coup d’œil, même si d’autres fichiers sont sélectionnés |
 | `g` puis `D` majuscule | Aller dans `~/Documents` |
 | `g` puis `B` majuscule | Aller dans `~/Desktop`, affiché comme Bureau par macOS |
 
 Sur certains claviers Mac, maintenir `fn` ou la touche Globe pour transmettre
-F2, F3 ou F4 au terminal. L'éditeur de F2 doit déjà être disponible. Pour un
+F2 à F5 au terminal. L'éditeur de F2 doit déjà être disponible. Pour un
 éditeur graphique, son mode d'attente est nécessaire afin que Yazi reprenne
 après sa fermeture ; par exemple, un `EDITOR` personnel peut contenir les
-arguments prévus par cet éditeur. Le parcours Zsh définit déjà `EDITOR=nvim`
-si Neovim est disponible, sauf préférence locale ultérieure.
+arguments prévus par cet éditeur. Les [préférences locales Zsh](../zsh/README.md#préférences-propres-à-chaque-mac)
+permettent de définir `VISUAL` ou `EDITOR`.
 
 F2 suspend l'affichage de Yazi pendant l'édition ; F3 lance l'ouverture
 macOS uniquement lorsque la touche est pressée. Ces actions peuvent ouvrir
 plusieurs éléments si une sélection existe. F4 ne copie pas le fichier : il
 copie son chemin avec le mécanisme de presse-papiers de Yazi, dont la prise en
 charge reste à vérifier avec le terminal cible.
+
+F5 utilise l’aperçu natif de macOS pour un fichier compatible, comme un PDF
+ou une image. Le dossier courant dans Yazi reste le même.
+[Guide Yazi sur Coup d’œil](https://yazi-rs.github.io/docs/tips/#macos-preview-files-with-the-system-quick-look)
 
 Les raccourcis sont ajoutés après les touches natives. Si une autre version
 attribue déjà la même touche, l'action native reste prioritaire. Les dossiers

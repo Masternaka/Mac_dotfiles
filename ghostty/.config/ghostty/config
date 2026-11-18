@@ -49,7 +49,7 @@ cursor-click-to-move = true
 shell-integration-features = no-cursor
 
 # ── Défilement ─────────────────────────────────────────────
-scrollback-limit = 10000
+# Conserver la capacité de défilement définie par Ghostty.
 scrollbar = system
 
 # ── Onglets & splits ───────────────────────────────────────

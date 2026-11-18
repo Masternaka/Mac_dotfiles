@@ -8,9 +8,8 @@ Configuration du shell Zsh, gérée par GNU Stow.
 - `.config/zsh/*.zsh` : sept fragments, destinés à `~/.config/zsh/`.
 
 Le chargeur et les fragments doivent être déployés ensemble. Ne pas copier
-seulement `.zshrc` : il signalerait des fragments absents. Les réglages de
-langue et d'éditeur existants sont respectés ; les valeurs de repli ne sont
-appliquées que si les variables correspondantes ne sont pas définies.
+seulement `.zshrc` : il signalerait des fragments absents. `LANG` reçoit une valeur de repli lorsque la variable est absente.
+Le choix de l’éditeur relève des préférences personnelles.
 Voir [l'organisation détaillée](../docs/organisation-configuration.md#ordre-de-chargement-zsh).
 
 ## Réglages
@@ -26,9 +25,24 @@ Voir [l'organisation détaillée](../docs/organisation-configuration.md#ordre-de
 - Présentation fzf/fzf-tab assortie aux couleurs du terminal, avec options séparées.
 - Plugin `zsh-autosuggestions`.
 - Starship, Zoxide (`cd` intelligent) et fzf.
-- `zsh-syntax-highlighting` chargé en dernier.
+- `zsh-syntax-highlighting` chargé avant `zsh-history-substring-search`.
 - Alias modernes pour `ls`, `ll`, `la`, `lt` et `cat`.
+- Raccourcis pour consulter Git et sélectionner un fichier dans le Finder.
 - Chargement facultatif de `~/.zshrc.local` pour les préférences de cette machine.
+
+## Alias Git et Finder
+
+| Alias | Commande | Usage |
+| --- | --- | --- |
+| `g` | `git` | Lancer une commande Git. |
+| `gs` | `git status -sb` | Afficher la branche et l’état des fichiers. |
+| `gd` | `git diff` | Relire les modifications non indexées des fichiers suivis. |
+| `gds` | `git diff --staged` | Relire les changements indexés avant un commit. |
+| `reveal` | `open -R` | Sélectionner un fichier dans le Finder, par exemple avec `reveal README.md`. |
+
+La commande `y` ouvre Yazi lorsqu’il est disponible. Quitter avec `q` ramène
+le terminal dans le dernier dossier visité. Avec `Q`, le terminal garde son
+dossier de départ. Voir le [guide Yazi](../yazi/README.md#lancement).
 
 ## Vues Eza pour les fichiers
 
@@ -71,13 +85,12 @@ dans l'arbre. Pour retrouver l'ancienne vue, y définir
 Retirer `la` et `lt` de la source pour ne plus les définir au prochain démarrage,
 ou rétablir les anciennes préférences personnelles si ces noms étaient déjà utilisés.
 
-Ces vues restent **sans analyse syntaxique, chargement ou essai visuel**.
+Le comportement de ces vues reste à vérifier dans un terminal.
 Référence : [options Eza](https://github.com/eza-community/eza/blob/main/man/eza.1.md).
 
 ## Complétion et confort d'édition
 
-Ces ajouts sont préparés dans le dépôt, **sans chargement, analyse syntaxique
-ni test interactif pour le moment**, conformément au report des vérifications.
+Le chargement et le comportement interactif de ces ajouts restent à vérifier.
 
 ### Complétion tolérante aux majuscules
 
@@ -132,9 +145,8 @@ les widgets de déplacement peuvent aussi accepter une partie ou la totalité
 d'une suggestion selon sa configuration ; ces interactions restent à tester.
 
 Pour l'édition externe, la fonction Zsh choisit `VISUAL`, puis `EDITOR`, puis
-son éditeur de repli. La configuration partagée définit déjà `EDITOR=nvim`
-si Neovim est disponible ; une préférence locale peut le remplacer. La fonction
-crée un fichier temporaire lors de son utilisation, puis restitue le texte
+son éditeur de repli. Définir `VISUAL` ou `EDITOR` dans les préférences
+locales pour choisir son éditeur. La fonction crée un fichier temporaire lors de son utilisation, puis restitue le texte
 édité dans le shell. Le raccourci seul ne valide pas une exécution : relire
 la ligne avant d'appuyer sur Entrée. Aucun éditeur n'est lancé au chargement.
 
@@ -157,14 +169,19 @@ le terminal change de palette. Les options personnelles déjà définies sont
 conservées et les réglages de fzf-tab restent séparés des options globales.
 
 La [fiche d'apparence fzf](../docs/apparence-fzf.md) explique les dimensions,
-les priorités et la désactivation. Cet ajout n'a pas été analysé, chargé ou
-testé visuellement. Des exemples facultatifs figurent dans le modèle local.
+les priorités et la désactivation. Des exemples facultatifs figurent dans le
+modèle local. Le rendu reste à vérifier dans le terminal.
 
 ## Historique des commandes
 
-La configuration prépare l'historique avec les mécanismes natifs de Zsh,
-sans plugin supplémentaire. L'ajout est **non vérifié à ce stade** : aucun
-chargement, test ou contrôle syntaxique de ce changement n'a été effectué.
+La configuration utilise les mécanismes natifs de Zsh pour l’historique.
+Le comportement en session reste à vérifier.
+
+Lorsque `zsh-history-substring-search` est disponible via Homebrew, le
+chargeur l’active après la coloration syntaxique. Saisir un fragment d’une
+commande, puis utiliser ↑ ou ↓ dans les modes d’édition Emacs ou Vi
+insertion. Ctrl+R reste associé à fzf lorsque son intégration est chargée.
+Le plugin définit les liaisons ↑ et ↓ après `~/.zshrc.local`.
 
 | Réglage | Comportement préparé |
 | --- | --- |
@@ -211,8 +228,8 @@ d'utiliser les sources prévues par `zsh-autosuggestions`.
 
 Avant le premier chargement sur la machine cible, conserver une copie datée du
 fichier d'historique réellement utilisé et, si nécessaire, du dossier de
-sessions de Terminal. Les scripts Stow sauvegardent la configuration `.zshrc`,
-mais **ne sauvegardent ni ne restaurent l'historique des commandes**.
+sessions de Terminal. L’historique se sauvegarde et se restaure séparément
+de la configuration Zsh.
 
 Après relecture et lorsque les essais seront possibles, suivre le parcours
 d'application du paquet Zsh ci-dessous, puis ouvrir un nouveau terminal sur
@@ -252,15 +269,14 @@ projet pour examiner son cache sur la machine cible.
 
 `fzf-tab` améliore la sélection avec Tab. Son chargement intervient après
 `compinit` et `fzf --zsh`, puis avant `zsh-autosuggestions`. La coloration
-syntaxique reste en dernier. Cet ordre suit les
+syntaxique précède la recherche d’historique par les flèches. Cet ordre suit les
 [contraintes de fzf-tab](https://github.com/Aloxaf/fzf-tab#install) et évite
 que l'intégration fzf réaffecte Tab après le plugin. Les descriptions sont
 regroupées et le menu natif est désactivé uniquement lorsque fzf-tab est chargé.
 Les intégrations directes de Bat, fzf et Zoxide sont conservées.
 
-En l'absence des ajouts, les complétions et intégrations déjà disponibles restent
-en place. Leur absence n'est pas bloquante pour `terminal_setup.sh` ni pour le
-diagnostic. Celui-ci inventorie les chemins sans exécuter les plugins externes.
+Les complétions natives restent disponibles lorsque ces plugins sont absents.
+Mac_setup signale les plugins qu’il trouve aux emplacements attendus.
 
 Pour désactiver les ajouts, déplacer manuellement leurs dossiers vers des noms
 libres, par exemple avec un suffixe `.desactive.HORODATAGE`, puis ouvrir un
@@ -284,8 +300,8 @@ Deux emplacements facultatifs sont disponibles :
 | `~/.zshrc.local` | Après les fragments, avant la coloration ; surcharges d'alias et de raccourcis, fonctionnement conservé |
 
 Le nouveau modèle [zshrc-local-pre.example.zsh](../config/zshrc-local-pre.example.zsh)
-prépare l'amont. L'ancien modèle reste adapté à l'aval. Ni l'un ni l'autre
-n'est copié dans le dossier personnel par les scripts. Les variables définies
+illustre les réglages à charger en amont. Le modèle principal reste adapté
+aux réglages à charger en aval. Les variables définies
 en amont peuvent être utilisées dès l'initialisation des outils. Les capacités
 d'historique minimales du module restent appliquées après l'amont ; utiliser
 l'aval pour imposer une capacité inférieure si cela est volontaire.
@@ -298,8 +314,7 @@ Zsh exécuté au démarrage : n'y placer que des réglages de confiance, sans
 charger à nouveau `~/.zshrc`.
 
 Le modèle [zshrc-local.example.zsh](../config/zshrc-local.example.zsh) contient
-uniquement des exemples commentés. Il reste hors du paquet Stow et n'est ni
-copié ni lié par les scripts. Aucun fichier personnel existant n'est remplacé.
+des exemples commentés à reprendre manuellement. Il se trouve hors du paquet Stow.
 
 Pour préparer ses préférences, **manuellement sur la machine cible** :
 
@@ -316,55 +331,16 @@ par exemple `.zshrc.local.desactive.HORODATAGE`, puis ouvrir un nouveau terminal
 Pour annuler une modification, rétablir sa copie après avoir conservé l'état
 courant. L'annulation d'un déploiement Stow ne gère pas ce fichier personnel.
 
-Le bilan du dépôt vérifie la syntaxe du modèle ; il ne lit ni n'exécute le
-fichier local réel. La compatibilité du mécanisme vise le Zsh fourni avec macOS ;
-les outils utilisés dans les préférences personnelles dépendent de la machine.
+Les [vérifications statiques](../docs/verification.md) couvrent les modèles
+du dépôt. Sur la machine cible, les outils utilisés dans les préférences
+personnelles doivent être disponibles.
 
-## Appliquer la configuration avec les scripts
+## Déploiement
 
-Depuis la racine du dépôt, commencer par une simulation :
+Les sept fragments et le chargeur se déploient ensemble. Les outils et plugins
+facultatifs sont chargés lorsqu’ils sont disponibles.
 
-```bash
-bash scripts/stow_setup.sh --dry-run --packages zsh
-```
-
-Ce parcours sélectionne uniquement ce paquet. L'application doit être préparée
-manuellement pour utiliser sa configuration.
-Après validation dans un macOS jetable et relecture du résultat, remplacer
-`--dry-run` par `--apply`, manuellement sur la machine cible. Le script
-sauvegarde les fichiers existants, enregistre un journal local et crée les
-liens ; il n'installe ni ne lance l'application.
-
-Voir [la première utilisation](../docs/premiere-utilisation.md) et
-[les prérequis des scripts](../scripts/README.md#prérequis-à-préparer-manuellement).
-Pour préparer une annulation, utiliser le journal exact affiché :
-
-```bash
-bash scripts/annuler-deploiement.sh --dry-run --journal .deployments/IDENTIFIANT.tsv
-```
-
-Suivre [le guide de retour arrière](../docs/retour-arriere.md) avant toute
-annulation réelle. Le comportement applicatif reste à valider sur la machine cible.
-
-Le paquet Zsh peut être lié seul : les outils et plugins absents ne sont pas
-chargés. Dans le parcours terminal, `--strict` permet d'exiger les outils et
-plugins complémentaires, tandis que `--packages` limite le groupe choisi.
-
-## Autre voie : Stow manuel
-
-Ces commandes sont à lancer soi-même sur la machine cible. Elles n'utilisent
-ni les sauvegardes automatiques, ni le journal, ni les protections des scripts.
-Examiner les fichiers et les options Stow personnels avant de les employer.
-
-```bash
-stow --target="$HOME" --restow --no-folding zsh
-```
-
-Pour retirer uniquement les liens du paquet :
-
-```bash
-stow --target="$HOME" --delete zsh
-```
-
-Ce retrait ne restaure pas les anciennes configurations ; voir
-[le retour arrière manuel](../docs/retour-arriere.md#annulation-manuelle-sans-journal).
+Suivre la [première utilisation](../docs/premiere-utilisation.md) pour
+prévisualiser le déploiement avec Mac_setup ou lier le paquet seul avec
+GNU Stow. Pour restaurer une configuration, suivre le
+[guide de retour arrière](../docs/retour-arriere.md).

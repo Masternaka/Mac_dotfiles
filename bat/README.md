@@ -17,32 +17,15 @@ sa pagination désactivée. L'alias `cat` peut ouvrir un pager pour un long fich
 utiliser `command cat` pour appeler la commande système, ou
 `bat --paging=never` pour lire avec Bat sans pagination.
 
-## Appliquer la configuration avec les scripts
+## Déploiement
 
-Préparer manuellement Bat, Stow et `cksum` sur la machine cible. Vérifier le
-chemin de configuration utilisé si `BAT_CONFIG_PATH` ou `XDG_CONFIG_HOME` est
-personnalisé : ce paquet cible uniquement `~/.config/bat/config`.
+Vérifier `BAT_CONFIG_PATH` et `XDG_CONFIG_HOME` si Bat utilise un chemin
+personnalisé. Le paquet vise `~/.config/bat/config`.
 
-Depuis la racine du clone, lorsque les essais seront possibles :
-
-```bash
-bash scripts/stow_setup.sh --dry-run --packages bat
-```
-
-Après validation dans un macOS jetable et relecture, remplacer `--dry-run` par
-`--apply`, manuellement sur la machine cible. Le script sauvegarde le fichier
-ordinaire existant, écrit son journal et crée le lien. Il n'installe ni ne
-lance Bat. Le parcours `terminal_setup.sh` conserve ses quatre paquets actuels ;
-sélectionner `bat` séparément pour ajouter sa configuration.
-
-Une future commande de diagnostic ciblée est également disponible :
-
-```bash
-bash scripts/verifier-depot.sh --dry-run --sans-shellcheck --package bat
-```
-
-Elle inventorie les prérequis sans lancer Bat et ne valide pas son format de
-configuration. Aucun de ces parcours n'a été exécuté pour préparer cet ajout.
+Suivre la [première utilisation](../docs/premiere-utilisation.md) pour
+prévisualiser le déploiement avec Mac_setup ou lier le paquet seul avec
+GNU Stow. Pour restaurer une configuration, suivre le
+[guide de retour arrière](../docs/retour-arriere.md).
 
 ## Thème Catppuccin dédié, facultatif
 
@@ -51,8 +34,8 @@ Macchiato, suivre manuellement les instructions du
 [projet Catppuccin pour Bat](https://github.com/catppuccin/bat) sur la machine
 cible : conserver les fichiers existants, préparer le thème dans le dossier
 de thèmes de Bat, puis reconstruire son cache selon ces instructions.
-La commande `bat cache --build` écrit dans le cache ; elle n'est exécutée par
-aucun script de ce dépôt. Choisir ensuite un thème réellement disponible, par
+La commande `bat cache --build` reconstruit le cache sur le Mac cible.
+Choisir ensuite un thème réellement disponible, par
 exemple `--theme="Catppuccin Macchiato"`, en remplaçant l'unique option active
 `--theme` du fichier source. Ne pas activer deux lignes de thème simultanément.
 
@@ -72,28 +55,7 @@ Pour désactiver cette option, retirer le bloc personnel ou rétablir l'ancienne
 valeur, puis ouvrir un nouveau terminal. Sa compatibilité avec les pages man
 du macOS cible n'a pas été testée.
 
-## Retour arrière
+## Référence
 
-Préparer l'annulation avec le journal exact affiché pendant l'application :
-
-```bash
-bash scripts/annuler-deploiement.sh --dry-run --journal .deployments/IDENTIFIANT.tsv
-```
-
-Suivre [le guide de retour arrière](../docs/retour-arriere.md) avant toute
-application réelle. Le retrait du paquet ne désinstalle pas Bat et ne change
-pas les préférences personnelles de `MANPAGER` ni un éventuel cache de thèmes.
-
-Autre voie manuelle, sans sauvegarde, journal ni protections des scripts :
-
-```bash
-stow --target="$HOME" --restow --no-folding bat
-```
-
-Le retrait manuel `stow --target="$HOME" --delete bat` ne restaure pas à lui
-seul le fichier antérieur.
-
-Cette configuration est préparée **sans analyse, test ni validation visuelle**.
-Voir [la première utilisation](../docs/premiere-utilisation.md),
-[la compatibilité](../docs/compatibilite.md) et
+Voir [la compatibilité](../docs/compatibilite.md) et
 [la documentation Bat](https://github.com/sharkdp/bat#customization).

@@ -17,7 +17,7 @@ Configuration [Starship](https://starship.rs) basée sur le thème Catppuccin Mo
 
 ## Lire l'invite
 
-Mocha est la variante sombre commune à Ghostty, Starship et Lazygit. Pour
+Mocha est la variante sombre commune à Ghostty et Starship. Pour
 choisir Latte dans Zsh, définir `DOTFILES_APPARENCE=clair` dans le fichier
 personnel amont `~/.zshrc.local.pre`. Le choix est explicite et ne suit pas
 automatiquement les changements macOS. Une valeur personnelle de
@@ -51,61 +51,24 @@ langage, ajouter son module dans `format` puis ses réglages éventuels.
 
 ## État de préparation
 
-Cette personnalisation n'a fait l'objet d'aucun contrôle TOML, lancement de
-Starship ni essai visuel, conformément au report des vérifications. Les modules
-peuvent interroger les outils locaux lors de l'utilisation future de l'invite.
-Aucun outil n'a été installé ni lancé pour appliquer cette configuration.
-La version compatible reste à établir dans [la matrice](../docs/compatibilite.md).
+Les modules peuvent interroger les outils locaux lorsque l’invite s’affiche.
+Le rendu et la version compatible restent à vérifier. Voir
+[la matrice de compatibilité](../docs/compatibilite.md).
 
 Pour retrouver l'ancienne composition, conserver la palette, les styles du
 dossier et de la branche, retirer le `format` global et les blocs ajoutés,
 puis rétablir l'ancien `error_symbol` si souhaité. Avant une modification sur
 la machine cible, conserver une copie datée de la configuration en cours.
 
-## Appliquer la configuration avec les scripts
+## Déploiement
 
-Depuis la racine du dépôt, commencer par une simulation :
+Mac_setup déploie toujours ce paquet et installe la commande `starship`
+si elle manque lors de l’application.
 
-```bash
-bash scripts/stow_setup.sh --dry-run --packages starship
-```
-
-Ce parcours sélectionne uniquement ce paquet. L'application doit être préparée
-manuellement pour utiliser sa configuration.
-Après validation dans un macOS jetable et relecture du résultat, remplacer
-`--dry-run` par `--apply`, manuellement sur la machine cible. Le script
-sauvegarde les fichiers existants, enregistre un journal local et crée les
-liens ; il n'installe ni ne lance l'application.
-
-Voir [la première utilisation](../docs/premiere-utilisation.md) et
-[les prérequis des scripts](../scripts/README.md#prérequis-à-préparer-manuellement).
-Pour préparer une annulation, utiliser le journal exact affiché :
-
-```bash
-bash scripts/annuler-deploiement.sh --dry-run --journal .deployments/IDENTIFIANT.tsv
-```
-
-Suivre [le guide de retour arrière](../docs/retour-arriere.md) avant toute
-annulation réelle. Le comportement applicatif reste à valider sur la machine cible.
-
-## Autre voie : Stow manuel
-
-Ces commandes sont à lancer soi-même sur la machine cible. Elles n'utilisent
-ni les sauvegardes automatiques, ni le journal, ni les protections des scripts.
-Examiner les fichiers et les options Stow personnels avant de les employer.
-
-```bash
-stow --target="$HOME" --restow --no-folding starship
-```
-
-Pour retirer uniquement les liens du paquet :
-
-```bash
-stow --target="$HOME" --delete starship
-```
-
-Ce retrait ne restaure pas les anciennes configurations ; voir
-[le retour arrière manuel](../docs/retour-arriere.md#annulation-manuelle-sans-journal).
+Suivre la [première utilisation](../docs/premiere-utilisation.md) pour
+prévisualiser le déploiement avec Mac_setup ou lier le paquet seul avec
+GNU Stow. Pour restaurer une configuration, suivre le
+[guide de retour arrière](../docs/retour-arriere.md).
 
 ## Personnalisation
 

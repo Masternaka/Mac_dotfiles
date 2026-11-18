@@ -27,7 +27,7 @@ CLAUDE.md
 # Journaux locaux contenant des chemins personnels et des empreintes
 /.deployments/
 
-# Préférences privées : seul config/zshrc-local.example.zsh est partagé
+# Préférences Zsh privées. Les modèles commentés sont dans config/.
 /.zshrc.local
 /zsh/.zshrc.local
 /.zshrc.local.pre

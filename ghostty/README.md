@@ -16,6 +16,33 @@ Le fichier `config` contient des réglages pour :
 - le curseur, le scrollback, les onglets et les splits
 - des raccourcis clavier personnalisés (ex. : `cmd+enter` pour le plein écran)
 
+## Police du terminal
+
+La configuration utilise `JetBrainsMono Nerd Font`. Pour obtenir ce rendu,
+installer la police manuellement sur le Mac cible. Si Homebrew y est déjà
+disponible, le cask correspondant est
+[`font-jetbrains-mono-nerd-font`](https://formulae.brew.sh/cask/font-jetbrains-mono-nerd-font).
+Mac_setup laisse ce choix à l’utilisateur.
+
+Pour utiliser une autre police, relever le nom de la famille sur le Mac
+cible avec `ghostty +list-fonts`. Dans `~/.config/ghostty-local.conf`,
+reprendre les deux lignes `font-family` du [modèle local](../config/ghostty-local.example.conf)
+et adapter le nom. La première remet à zéro la liste des familles, la
+seconde définit la police choisie. Après relecture, recharger Ghostty sur
+le Mac cible. [Référence de `font-family`](https://ghostty.org/docs/config/reference#font-family)
+
+## Compatibilité
+
+Les notifications de fin de commande et la barre de défilement sont
+disponibles à partir de Ghostty 1.3. L’effet Liquid Glass
+`macos-glass-regular` demande aussi macOS 26 ou ultérieur.
+[Notes de Ghostty 1.3](https://ghostty.org/docs/install/release-notes/1-3-0) ·
+[Référence du flou](https://ghostty.org/docs/config/reference#background-blur)
+
+Le tampon de défilement utilise la limite par défaut de Ghostty. Pour
+l’ajuster localement, utiliser le réglage documenté pour la version
+installée. [Référence du scrollback](https://ghostty.org/docs/config/reference#scrollback-limit)
+
 ## Préférences propres à chaque Mac
 
 Le fichier commun prévoit l'inclusion facultative de
@@ -34,47 +61,12 @@ puis recharger soi-même Ghostty. L'absence du fichier est acceptée.
 Cette inclusion reste sans essai ; la version compatible est à établir.
 Référence : [config-file](https://ghostty.org/docs/config/reference#config-file).
 
-## Appliquer la configuration avec les scripts
+## Déploiement
 
-Depuis la racine du dépôt, commencer par une simulation :
+Vérifier le fichier de configuration réellement lu si Ghostty utilise aussi
+un fichier dans `~/Library/Application Support/com.mitchellh.ghostty/`.
 
-```bash
-bash scripts/stow_setup.sh --dry-run --packages ghostty
-```
-
-Ce parcours sélectionne uniquement ce paquet. L'application doit être préparée
-manuellement pour utiliser sa configuration.
-Après validation dans un macOS jetable et relecture du résultat, remplacer
-`--dry-run` par `--apply`, manuellement sur la machine cible. Le script
-sauvegarde les fichiers existants, enregistre un journal local et crée les
-liens ; il n'installe ni ne lance l'application.
-
-Voir [la première utilisation](../docs/premiere-utilisation.md) et
-[les prérequis des scripts](../scripts/README.md#prérequis-à-préparer-manuellement).
-Pour préparer une annulation, utiliser le journal exact affiché :
-
-```bash
-bash scripts/annuler-deploiement.sh --dry-run --journal .deployments/IDENTIFIANT.tsv
-```
-
-Suivre [le guide de retour arrière](../docs/retour-arriere.md) avant toute
-annulation réelle. Le comportement applicatif reste à valider sur la machine cible.
-
-## Autre voie : Stow manuel
-
-Ces commandes sont à lancer soi-même sur la machine cible. Elles n'utilisent
-ni les sauvegardes automatiques, ni le journal, ni les protections des scripts.
-Examiner les fichiers et les options Stow personnels avant de les employer.
-
-```bash
-stow --target="$HOME" --restow --no-folding ghostty
-```
-
-Pour retirer uniquement les liens du paquet :
-
-```bash
-stow --target="$HOME" --delete ghostty
-```
-
-Ce retrait ne restaure pas les anciennes configurations ; voir
-[le retour arrière manuel](../docs/retour-arriere.md#annulation-manuelle-sans-journal).
+Suivre la [première utilisation](../docs/premiere-utilisation.md) pour
+prévisualiser le déploiement avec Mac_setup ou lier le paquet seul avec
+GNU Stow. Pour restaurer une configuration, suivre le
+[guide de retour arrière](../docs/retour-arriere.md).

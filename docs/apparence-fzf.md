@@ -1,8 +1,7 @@
 # Apparence de fzf et fzf-tab
 
-Présentation préparée dans `zsh/.zshrc`, sans nouveau plugin ni fichier de
-thème à installer. **Aucun chargement, contrôle syntaxique, test ou essai visuel
-n'a été effectué pour cet ajout.** Les versions compatibles restent à établir.
+La présentation est définie dans le fragment Zsh de recherche. Le rendu et
+les versions compatibles restent à vérifier dans le terminal.
 
 ## Couleurs et fenêtres
 

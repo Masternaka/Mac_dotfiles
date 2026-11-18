@@ -10,7 +10,3 @@ fi
 if [[ -z ${LANG+x} ]]; then
     export LANG=en_US.UTF-8
 fi
-if [[ -z ${EDITOR+x} ]] && command -v nvim >/dev/null 2>&1; then
-    export EDITOR='nvim'
-fi
-

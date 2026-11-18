@@ -23,7 +23,25 @@ if [[ -f "$HOME/.zshrc.local" && -r "$HOME/.zshrc.local" ]]; then
     source "$HOME/.zshrc.local"
 fi
 
-# La coloration syntaxique reste en dernier.
+# Initialiser la coloration avant la recherche d’historique.
 if [[ -r "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
     source "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
+
+# Charger la recherche d’historique après la coloration, comme le plugin le demande.
+_dotfiles_brew_prefix="${HOMEBREW_PREFIX:-}"
+if [[ -z "$_dotfiles_brew_prefix" ]] && command -v brew >/dev/null 2>&1; then
+    _dotfiles_brew_prefix="$(brew --prefix 2>/dev/null)" || _dotfiles_brew_prefix=''
+fi
+_dotfiles_history_search="$_dotfiles_brew_prefix/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+if [[ "$_dotfiles_brew_prefix" == /* && -f "$_dotfiles_history_search" && -r "$_dotfiles_history_search" ]]; then
+    if source "$_dotfiles_history_search"; then
+        for _dotfiles_keymap in emacs viins; do
+            bindkey -M "$_dotfiles_keymap" $'\e[A' history-substring-search-up
+            bindkey -M "$_dotfiles_keymap" $'\e[B' history-substring-search-down
+            bindkey -M "$_dotfiles_keymap" $'\eOA' history-substring-search-up
+            bindkey -M "$_dotfiles_keymap" $'\eOB' history-substring-search-down
+        done
+    fi
+fi
+unset _dotfiles_brew_prefix _dotfiles_history_search _dotfiles_keymap

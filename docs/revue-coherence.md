@@ -1,4 +1,7 @@
-# Revue de cohérence du déploiement et de l'annulation
+# Revue historique du déploiement et de l’annulation
+
+Cette revue porte sur l’ancien déploiement Mac_dotfiles. Le parcours actuel
+est décrit dans le [guide de première utilisation](premiere-utilisation.md).
 
 Revue du 3 novembre 2026, sur les fichiers de travail comprenant les changements
 non commités. ShellCheck est explicitement différé. Cette revue comprend une
@@ -57,10 +60,9 @@ parents symboliques et empreintes restent nécessaires.
 
 ### Permettre de reporter explicitement ShellCheck
 
-`verifier-depot.sh --sans-shellcheck` effectue les autres contrôles et signale
-l'analyse différée comme incomplète. Le bilan ne devient donc pas artificiellement
-complet. Le hook avant commit conserve ses exigences ; il n'a pas été exécuté
-ni activé pendant cette revue.
+Le vérificateur de l’époque proposait l’option `--sans-shellcheck`. Elle
+permettait de poursuivre les autres contrôles tout en signalant l’analyse
+différée. Le hook avant commit n’a pas été activé pendant cette revue.
 
 ## Cohérence vérifiée par lecture
 
@@ -77,20 +79,14 @@ ni activé pendant cette revue.
 
 ## Contrôles et limites
 
-Les commandes prévues pour les contrôles de cette revue sont :
-
-```bash
-bash scripts/verifier-depot.sh --dry-run --sans-shellcheck
-zsh -n zsh/.zshrc
-zsh -n config/zshrc-local.example.zsh
-git diff --check
-```
+Les contrôles combinaient le bilan statique de l’époque, la syntaxe Zsh et
+la vérification des espaces par Git.
 
 Résultats observés lors de cette revue :
 
 | Contrôle | Résultat |
 | --- | --- |
-| Syntaxe des six fichiers `scripts/*.sh` et du hook | Réussite avec Bash 3.2.57 |
+| Syntaxe des six scripts de l’époque et du hook | Réussite avec Bash 3.2.57 |
 | Syntaxe `.zshrc` et modèle local | Réussite avec Zsh 5.9 |
 | YAML de Lazygit | Réussite syntaxique ; schéma applicatif non validé |
 | Espaces Git et cibles des liens Markdown locaux | Aucun problème détecté ; contrôle Git limité aux fichiers suivis |
@@ -110,6 +106,5 @@ concurrents, changements de chemins pendant les opérations, `KILL` et coupures
 CRC n'authentifie pas les journaux et sauvegardes. Un journal ancien ne doit
 pas être rejoué sur un lien identique recréé depuis un autre déploiement.
 
-La validation réelle dans un macOS jetable reste à effectuer manuellement avec
-[le protocole détaillé](validation-avant-application.md). La revue statique ne
-remplace aucun de ces scénarios et ne certifie pas l'application sur un Mac.
+Le [protocole actuel](validation-avant-application.md) porte sur Mac_setup
+et les paquets du dépôt.

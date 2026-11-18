@@ -1,138 +1,35 @@
-# Vérifications manuelles
+# Vérifications statiques
 
-Ces contrôles lisent le code sans appliquer les configurations. Ils sont
-destinés à être lancés manuellement depuis la racine du dépôt.
+Depuis la racine de Mac_dotfiles, contrôler les changements sans charger les
+configurations ni lancer les applications.
 
-## Bilan en une commande
+## Zsh et Git
 
-```bash
-bash scripts/verifier-depot.sh --dry-run
-```
-
-Pour cibler un paquet, ajouter `--package ghostty` ; pour plusieurs,
-`--packages ghostty,zsh`. Les analyses des scripts Bash communs restent actives,
-les configurations et dépendances sont limitées à la sélection. Sans ces
-options, le bilan complet est conservé.
-
-L'option `--sans-shellcheck` permet de différer explicitement cette analyse,
-sans installer d'outil. Elle produit un bilan incomplet, jamais un succès
-complet, et ne désactive pas les autres contrôles.
-
-Le script ne modifie rien et ne lance pas les applications. Il continue après
-un contrôle indisponible ou un échec, puis renvoie `1` pour un échec ou `2` pour
-un bilan incomplet ; `0` signifie seulement que les contrôles statiques prévus
-ont pu être terminés. Le [guide avant application](validation-avant-application.md)
-explique les prérequis, les limites et les essais manuels dans un macOS jetable.
-
-## Syntaxe sans dépendance supplémentaire
-
-```bash
-for script in scripts/*.sh; do
-    bash -n "$script" || break
-done
-zsh -n zsh/.zshrc
-zsh -n config/zshrc-local.example.zsh
-zsh -n config/zshrc-local-pre.example.zsh
-for fragment in zsh/.config/zsh/*.zsh; do
-    zsh -n "$fragment" || break
+```zsh
+for fichier in zsh/.zshrc zsh/.config/zsh/*.zsh config/*.example.zsh; do
+    zsh -n "$fichier" || break
 done
 git diff --check
+git diff --cached --check
 ```
 
-`bash -n` analyse un fichier à la fois ; passer plusieurs chemins à une seule
-invocation ne contrôle pas tous les fichiers.
+## TOML
 
-## ShellCheck
-
-[ShellCheck](https://github.com/koalaman/shellcheck) complète l'analyse syntaxique
-des scripts Bash avec des diagnostics sur les variables, les guillemets et les
-cas limites. Il doit déjà être présent ; aucun script ne l'installe.
+Avec Python 3.11 ou ultérieur déjà disponible, vérifier les fichiers TOML avec
+`tomllib`.
 
 ```bash
-if command -v shellcheck >/dev/null 2>&1; then
-    shellcheck scripts/*.sh
-else
-    printf '%s\n' 'ShellCheck absent : utiliser les contrôles de syntaxe ci-dessus.'
-fi
+python3 -B - <<'PYTHON'
+from pathlib import Path
+import tomllib
+
+for paquet in ("starship", "yazi"):
+    for fichier in sorted(Path(paquet).rglob("*.toml")):
+        with fichier.open("rb") as source:
+            tomllib.load(source)
+        print(fichier)
+PYTHON
 ```
 
-Le fichier `.shellcheckrc` autorise l'analyse de `scripts/lib.sh` et résout
-les chemins sourcés relativement au script. Aucun diagnostic n'est désactivé.
-ShellCheck ne prend pas en charge Zsh : `.zshrc` est contrôlé par `zsh -n`.
-
-Pour inclure le hook livré dans l'analyse manuelle :
-
-```bash
-bash -n .githooks/pre-commit
-shellcheck scripts/*.sh .githooks/pre-commit
-```
-
-## Contrôle avant commit facultatif
-
-Le fichier `.githooks/pre-commit` automatise ces vérifications pour les commits
-de **ce dépôt seulement**, dans le terminal comme dans Lazygit. Il exige Git,
-Bash, Zsh et ShellCheck déjà présents. Si un outil manque, le commit est bloqué
-avec un message explicite. Aucun outil n'est téléchargé ou installé.
-
-Pour garder le contrôle simple et fiable, les fichiers analysés doivent être
-entièrement indexés : scripts Bash, hook, `.shellcheckrc`, catalogue
-`config/paquets.tsv`, chargeur `.zshrc`, fragments `zsh/.config/zsh/*.zsh` et
-les deux modèles Zsh locaux de `config/`. Le hook
-refuse de continuer si leur version de travail diffère de l'index, ou si un de
-ces fichiers n'y figure pas encore. Les autres fichiers peuvent être indexés
-partiellement. Il ne lance aucun script de liaison et ne reformate rien.
-
-Avant activation, consulter les réglages et hooks existants :
-
-```bash
-git config --show-origin --get core.hooksPath
-git rev-parse --git-path hooks/pre-commit
-```
-
-La première commande ne produit rien et renvoie le code 1 en l'absence de
-réglage. Si un chemin est configuré, ou si le chemin retourné par la seconde
-commande contient déjà un hook actif, s'arrêter et prévoir une intégration
-manuelle : ne pas remplacer les hooks existants.
-
-Après relecture, **sur la machine cible**, rendre le hook exécutable et activer
-ce dossier pour ce clone uniquement :
-
-```bash
-chmod +x .githooks/pre-commit
-git config --local core.hooksPath .githooks
-```
-
-Ces commandes ne sont pas exécutées par les scripts du dépôt. Pour contrôler
-manuellement les fichiers entièrement indexés sans créer de commit :
-
-```bash
-bash .githooks/pre-commit --dry-run
-```
-
-Le hook est toujours en lecture seule : `--apply` effectue les mêmes contrôles,
-sans aucune modification. Un échec bloque le commit, il ne le répare pas.
-
-Pour désactiver l'automatisation, vérifier d'abord que la valeur locale est bien
-`.githooks`, puis retirer uniquement ce réglage ajouté lors de l'activation :
-
-```bash
-git config --local --get core.hooksPath
-git config --local --unset core.hooksPath
-```
-
-Ne pas retirer une autre valeur. Aucun hook n'est copié dans `.git/hooks`, aucun
-réglage global n'est modifié. Les hooks Git sont un confort local contournable
-par l'utilisateur, pas une garantie imposée à tous les contributeurs.
-
-Références : [hooks Git](https://git-scm.com/docs/githooks) et
-[directives ShellCheck](https://www.shellcheck.net/wiki/Directive).
-
-Une analyse statique réussie ne prouve pas le comportement de Stow, le rendu de
-Lazygit/Delta ni la compatibilité de toutes les versions des applications.
-Les essais d'application se font manuellement dans un environnement jetable.
-
-Le diagnostic et le hook prévoient désormais la lecture du catalogue commun.
-Le diagnostic TOML parcourt les sources déclarées, notamment les deux variantes
-Starship et les deux fichiers Yazi. Les chemins d'environnement incompatibles
-sont signalés comme un échec de compatibilité de destination. Ces adaptations
-n'ont pas été exécutées ni analysées ; les vérifications restent différées.
+Ces contrôles couvrent la syntaxe. Pour vérifier les options reconnues, les
+raccourcis, le rendu et les liens, suivre le [protocole sur un macOS jetable](validation-avant-application.md).
